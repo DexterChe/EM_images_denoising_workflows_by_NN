@@ -2,7 +2,7 @@
 Created on Wed May 17
 Author: Dmitry Chezganov
 
-The file contains the function to use for NN image denosing
+The file contains the functions to use for NN image denosing
 
 """
 import numpy as np
@@ -429,7 +429,7 @@ def check_and_load_image(
     # if file_path.rsplit('.', maxsplit=1)[-1] == 'emi':
     if how_to_process == 'hyperspy':
         
-        print(f'File {file_path} is not a TIFF image. It is .emi file. Using the hyperspy to load the data...')
+        print(f'File is not a TIFF image. It is .emi file. Using the hyperspy to load the data...')
         # s = hs.load(file)
         # image = s.data
         if file_data.data.ndim > 2:
