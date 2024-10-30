@@ -227,6 +227,7 @@ import matplotlib.pyplot as plt
 from matplotlib_scalebar.scalebar import ScaleBar
 
 def plot_original_vs_denoised(original_image, 
+
                                 denoised_image, 
                                 net_name,
                                 file_name, 
@@ -238,6 +239,25 @@ def plot_original_vs_denoised(original_image,
                                 px_size=1,
                                 HT='add HT here',
                                 mag='add mag here'):
+    """
+    Plots the original and denoised images side by side for comparison, with additional details such as 
+    scale bar, magnification, and pixel size.
+    Parameters:
+    original_image (ndarray): The original image data.
+    denoised_image (ndarray): The denoised image data.
+    net_name (str): The name of the neural network used for denoising.
+    file_name (str): The name of the file to be saved.
+    cmap (str): The colormap to be used for displaying the images.
+    save_path (str): The path where the figure will be saved.
+    show (bool, optional): Whether to display the plot. Default is True.
+    scale (float, optional): The scale of the image. Default is 1.
+    units (str, optional): The units of the scale bar. Default is 'nm'.
+    px_size (float, optional): The pixel size. Default is 1.
+    HT (str, optional): The high tension value. Default is 'add HT here'.
+    mag (str, optional): The magnification value. Default is 'add mag here'.
+    Returns:
+    None
+                                """
     # add scale
     image_scale_x = image_scale_y = scale
 
@@ -427,6 +447,25 @@ def check_and_load_image(
                         how_to_process='hyperspy' #! other option is tif
                         ): # file_data_0 is the part of the list file that have the metadata
     # if file_path.rsplit('.', maxsplit=1)[-1] == 'emi':
+    """
+    Check the file type and load the image data accordingly.
+    Parameters:
+    file_path (str): The path to the image file.
+    file_data_0 (object): Metadata associated with the image file.
+    file_data (object): The image data object.
+    how_to_process (str, optional): Method to process the image file. 
+                                    Options are 'hyperspy' (default) or 'tif'.
+    Returns:
+    tuple: A tuple containing:
+        - image (ndarray): The loaded image data.
+        - image_adj (ndarray): The adjusted image data.
+        - px_size (float): The pixel size.
+        - mag (float or str): The magnification or camera length.
+        - HT (float or None): The high tension value.
+        - unit (str): The unit of measurement.
+        - scale (float): The scale of the image.
+        - image_mode (str): The mode of the image ('image' or 'diffraction').
+    """
     if how_to_process == 'hyperspy':
         
         print(f'File is not a TIFF image. It is .emi file. Using the hyperspy to load the data...')
@@ -524,6 +563,23 @@ def apply_fft_and_plot(file_name,
                         save_fft=True,
                         save_fft_comparison=True,
                         ):
+    """
+    Apply FFT to the original and denoised images and plot the results side by side.
+    Parameters:
+    file_name (str): The name of the file.
+    image (ndarray): The original image data.
+    denoised_image (ndarray): The denoised image data.
+    scale (float): The scale of the image.
+    net_name (str): The name of the neural network used for denoising.
+    save_path_png (str): The path to save the images.
+    save_path_fft_comparison (str): The path to save the comparison plot.
+    show (bool, optional): Whether to display the plot. Default is True.
+    save_fft (bool, optional): Whether to save the FFT images. Default is True.
+    save_fft_comparison (bool, optional): Whether to save the comparison plot. Default is True.
+    Returns:
+    None
+    """
+
     if image.ndim != 2:
         picture = image[0,:,:,0]
     else:
@@ -600,11 +656,39 @@ def apply_fft_and_plot(file_name,
 
 # ? not sure if this part works since I have added the gpu_id to the function
 def fcn_set_gpu_id(gpu_visible_devices: str = "0") -> None:
+    """
+    Sets the GPU device(s) to be visible for CUDA operations.
+
+    This function sets the environment variables to specify which GPU devices
+    should be visible to CUDA. This is useful when you have multiple GPUs and
+    want to restrict the operations to a specific GPU or set of GPUs.
+
+    Args:
+        gpu_visible_devices (str): A comma-separated string of GPU device IDs 
+        to be made visible. Default is "0", which 
+        makes only the first GPU visible.
+
+    Returns:
+        None
+    """
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     os.environ['CUDA_VISIBLE_DEVICES'] = gpu_visible_devices
 
 # denoising function
 def denoise_image(image, net, nx, ny, max_size_gpu=1024):
+    """
+    Denoise an image using a neural network.
+
+    Parameters:
+    image (numpy.ndarray): The input image to be denoised.
+    net (object): The neural network model used for denoising.
+    nx (int): The width of the image.
+    ny (int): The height of the image.
+    max_size_gpu (int, optional): The maximum size of the image that can be processed by the GPU. Default is 1024.
+
+    Returns:
+    numpy.ndarray: The denoised image.
+    """
     # ! Denoise
     if nx > max_size_gpu or ny > max_size_gpu:
         print('Patch-based denoise...')
@@ -628,7 +712,40 @@ def plot_image_fft_fft_cut(image,
                             save_path = 'add path here',
                                     
                             ):
-    
+    """
+    Plots the original image, its full FFT, and a cut FFT.
+    Parameters:
+    -----------
+    image : numpy.ndarray
+        The input image to be processed. Should be a 2D array.
+    file_name : str
+        The name of the file to be used in the plot annotations.
+    units : str
+        The units for the axes (e.g., 'nm', '1/nm').
+    cut_freq : float
+        The frequency range to cut the FFT.
+    scale : float
+        The scale for the axes manager.
+    HT : float
+        The high tension value (in kV) for the plot annotations.
+    mag : float
+        The magnification value for the plot annotations.
+    px_size : float
+        The pixel size for the scale bar.
+    apodization : str, optional
+        The apodization method to be used in FFT. Default is 'Tukey'.
+    cmap : str, optional
+        The colormap to be used for plotting. Default is 'inferno'.
+    show : bool, optional
+        Whether to display the plot. Default is True.
+    save : bool, optional
+        Whether to save the plot. Default is True.
+    save_path : str, optional
+        The path where the plot should be saved. Default is 'add path here'.
+    Returns:
+    --------
+    None
+    """
     # check image dimensions since there is sometime more than 2
     if image.ndim != 2:
         image = image[0,:,:,0]
